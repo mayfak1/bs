@@ -20,17 +20,16 @@ int lover_bound_branchless(int *t, int n, int x) {
 }
 
 int lover_bound_prefetch(int *t, int n, int x) {
-  int k = 1;
-  while (n > 1) {
-    int half = n / 2;
-    n -= half;
-    __builtin_prefetch(&t[n / 2 - 1]);
-    __builtin_prefetch(&t[half + n / 2 - 1]);
-    t += (t[half - 1] < x) * half;
+  int *base = t, len = n;
+  while (len > 1) {
+    int half = len / 2;
+    len -= half;
+    __builtin_prefetch(&base[len / 2 - 1]);
+    __builtin_prefetch(&base[half + len / 2 - 1]);
+    base += (base[half - 1] < x) * half;
   }
-  return *t;
+  return *base;
 }
-
 int compare(const void *a, const void *b) {
   double diff = *(double *)a - *(double *)b;
   return (diff > 0) - (diff < 0);
